@@ -29,7 +29,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
+          path: target/*.jar
 
   deploy:
     runs-on: ubuntu-latest
@@ -42,9 +42,9 @@ jobs:
           name: java-app
 
       - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v1  # ✅ v1 required for publish profile auth
         with:
-          app-name: 'product-apis'  # must match your Azure App Service name
+          app-name: 'product-apis'  # 🔒 must exactly match your App Service name
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
           package: '*.jar'
