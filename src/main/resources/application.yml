@@ -9,6 +9,7 @@
 #    hibernate:
 #      ddl-auto: update
 
+
 spring:
   application:
     name: ProductService
@@ -25,9 +26,11 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
 azure:
   storage:
-    connection-string: ${AZURE_STORAGE_CONNECTION_STRING}
-
+    account-name: ${AZURE_STORAGE_ACCOUNT_NAME}
+    account-key: ${AZURE_STORAGE_ACCOUNT_KEY}
+    blob-container-name: ${AZURE_STORAGE_BLOB_CONTAINER_NAME}
+    archive-container-name: ${AZURE_STORAGE_ARCHIVE_CONTAINER_NAME}

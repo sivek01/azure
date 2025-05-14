@@ -2,14 +2,17 @@ package com.example.productservice.controller;
 
 import com.example.productservice.service.AzureBlobService;
 import com.example.productservice.service.ProductService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
+@Slf4j
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -21,23 +24,22 @@ public class ProductController {
     private AzureBlobService azureBlobService;
 
     @PostMapping("/upload")
-    public String uploadProductFile(@RequestParam("file") MultipartFile file) {
-        String fileName = file.getOriginalFilename();
+    public ResponseEntity<String> uploadProductFile(@RequestParam("file") MultipartFile file) {
         try {
-            // Upload to Azure Blob
+            String fileName = file.getOriginalFilename();
+
             azureBlobService.uploadFile(fileName, file.getInputStream(), file.getSize());
 
-            // Read back from Azure Blob and process
             InputStream blobStream = azureBlobService.downloadFile(fileName);
             productService.processFile(blobStream);
 
-            // Archive file
             azureBlobService.archiveFile(fileName);
 
-            return "File uploaded and processed successfully!";
+            return ResponseEntity.ok("File uploaded and processed successfully!");
         } catch (Exception e) {
-            e.printStackTrace();
-            return "Error while processing: " + e.getMessage();
+            log.error("Failed to upload/process file", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error while processing: " + e.getMessage());
         }
     }
 
